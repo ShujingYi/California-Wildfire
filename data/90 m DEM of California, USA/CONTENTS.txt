@@ -1,0 +1,35 @@
+# Dataset Title
+90 m DEM of California, USA
+
+
+# URL
+http://databasin.org/datasets/78ac54fabd594db5a39f6629514752c0
+
+
+# Dataset Type
+ArcGIS
+
+
+# Credits
+The SRTM data sets result from a collaborative effort by the National Aeronautics and Space Administration (NASA) and the National Geospatial-Intelligence Agency (NGA - previously known as the National Imagery and Mapping Agency, or NIMA), as well as the participation of the German and Italian space agencies, to generate a near-global digital elevation model (DEM) of the Earth using radar interferometry.
+
+
+# Uploaded By
+[Wendy Peterman](http://databasin.org/people/wendybrddance)
+
+
+# Description
+SRTM data are organized into individual rasterized cells, or tiles, each covering one degree by one degree in latitude and longitude. Sample spacing for individual data points is either 1 arcsecond, 3 arc-seconds, or 30 arc-seconds, referred to as SRTM1, SRTM3 and SRTM30, respectively. Since one arc-second at the equator corresponds to roughly 30 meters in horizontal extent, the SRTM1 and SRTM3 are sometimes referred to as &quot;30 meter&quot; or &quot;90 meter&quot; data. SRTM data were processed and delivered continent-by-continent and data for each continent are located in a separate directory on this server. The definitions of the continents are displayed in the figure below and at higher resolution in the file Continent_def.gif. Edited SRTM1 data for the United States and its territories and possessions are also being released and can be found in the directory /United_States_1arcsec./ Cells that straddle the border with neighboring countries have been masked with quarter degree quantization such that data outside the U.S. have the void value.
+
+
+# Use Constraints
+This work is licensed under a  Creative Commons Attribution 3.0 License.
+
+
+### Original Metadata
+metadata/metadata1_original.xml
+
+
+### Data Basin Metadata
+metadata/metadata1.xml
+

@@ -1,0 +1,1376 @@
+---
+title: "MUSA 508 Wildfire Prediction"
+author: "Yuehui Gong, Shujing Yi"
+date: "12/16/2022"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup1, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+
+# 1. Introduction
+
+California is facing a growing wildfire crisis. With climate change, more and more big fires are happening in northern California. Especially in 2020, 9,917 fires burned 4,397,809 acres (1,779,730 ha) of land, which makes this year the largest wildfire season recorded in California's modern history. Most significant fires happened in Northern California, including August Complex, which burned 1,032,648 acres (ranked 1st in history), and North Complex, which caused 15 death. Compared to areas with major cities, the 19 counties in Northern California have more forest areas and sparse fire stations, which makes them more vulnerable to big fires.
+
+We plan to develop a wildfire prediction model from an ecological perspective by considering natural and human factors in our model and proposing a forest management system of prescribed fire. Therefore, this study is to build a logistic model for a fire management App, "SmartBurn." Our fire management App is intended to help the Northern California government and naturalists decide where to do prescribed burns to prevent wildfires.
+ 
+To be more specific, with SmartBurn, users including government officer, scientist, fire specialist can request predictive maps by searching a location or selecting a county, then find related community information and build a multi-discipline team. The app also helps users find the best route from the current location or a facility to a burn location. Here is the link of our App introduction: https://youtu.be/mcidHTk65sk
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(error = FALSE)
+
+# LIBRARIES
+library(rjson)
+library(ggplot2) # for visualization
+library(tigris) # for getting US shapefiles
+library(stringr)
+library(purrr)
+library(rgeos)
+library(maptools)
+library(raster)
+library(readr) # for reading in files, like .rds or .csv files
+library(tidycensus)
+library(tidyverse)
+library(rgdal) # for spatial data
+library(sf)
+library(sp)
+library(spdep)
+library(caret)
+library(ckanr)
+library(FNN)
+library(grid)
+library(gridExtra)
+library(ggcorrplot)
+library(jtools)  
+library(viridis)
+library(kableExtra)
+library(dplyr)
+library(osmdata)
+library(stargazer)
+library(pscl)
+library(pROC)
+library(plotROC)
+library(riem)
+options(scipen=999)
+options(tigris_class = "sf")
+
+# THEMES AND FUNCTIONS
+mapTheme <- function(base_size = 12) {
+  theme(
+    text = element_text( color = "black"),
+    plot.title = element_text(size = 14,colour = "black"),
+    plot.subtitle=element_text(face="italic"),
+    plot.caption=element_text(hjust=0),
+    axis.ticks = element_blank(),
+    panel.background = element_blank(),axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill=NA, size=1.5)
+  )
+}
+
+plotTheme <- function(base_size = 12) {
+  theme(
+    text = element_text( color = "black"),
+    plot.title = element_text(size = 14,colour = "black"),
+    plot.subtitle = element_text(face="italic"),
+    plot.caption = element_text(hjust=0),
+    axis.ticks = element_blank(),
+    panel.background = element_blank(),
+    panel.grid.major = element_line("grey80", size = 0.1),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill=NA, size=2),
+    strip.background = element_rect(fill = "grey80", color = "white"),
+    strip.text = element_text(size=12),
+    axis.title = element_text(size=12),
+    axis.text = element_text(size=10),
+    plot.background = element_blank(),
+    legend.background = element_blank(),
+    legend.title = element_text(colour = "black", face = "italic"),
+    legend.text = element_text(colour = "black", face = "italic"),
+    strip.text.x = element_text(size = 14)
+  )
+}
+
+# PALETTE
+palette2 <- c("#F96167","#FCE77D")
+palette3 <- c("#FCE77D","#F96167")
+palette5 <- c("#981FAC","#CB0F8B","#FF006A","#FE4C35","#FE9900")
+
+qBr <- function(df, variable, rnd) {
+  if (missing(rnd)) {
+    as.character(quantile(round(df[[variable]],0),
+                          c(.01,.2,.4,.6,.8), na.rm=T))
+  } else if (rnd == FALSE | rnd == F) {
+    as.character(formatC(quantile(df[[variable]]), digits = 3),
+                 c(.01,.2,.4,.6,.8), na.rm=T)
+  }
+}
+
+q5 <- function(variable) {as.factor(ntile(variable, 5))}
+
+# functions
+root.dir = "https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/"
+source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/functions.r")
+
+```
+
+# 2. Data Wrangling
+
+All the datasets we are using are from public platform. We are using the following datasets:\n
+
+1. **Fire:** Perimeters in California from 2018 to 2021\n
+
+2. **California County**\n
+
+3. **Elevation Data:** slope, aspect\n
+
+4. **Land cover Data**\n
+
+5. **Landscape Intactness Data:** urban and agriculture density, fragmentation, intactness\n
+
+6. **Vegetation Type**\n
+
+7. **Weather:** temperature, precipitation, humidity, wind speed\n
+
+8. **Anthropogenic Data:** fire facility, campground, electric substation\n
+
+
+```{r , results='hide'}
+CA_county<-st_read("data/California_County_Boundaries/cnty19_1.shp") %>%
+  st_transform('EPSG:2225')
+
+northCA<-st_read("data/northCA/northCA.shp") %>%
+  st_transform('EPSG:2225')
+
+fire <- st_read("data/Fire/firep21.shp")%>%
+  st_transform('EPSG:2225')%>%     
+  filter(YEAR_=="2019"|YEAR_=="2020"|YEAR_=="2021")
+
+fire_18 <- st_read("data/Fire/firep21.shp")%>%
+  st_transform('EPSG:2225')%>%     
+  filter(YEAR_=="2018")
+
+fire_19 <- st_read("data/Fire/firep21.shp")%>%
+  st_transform('EPSG:2225')%>%     
+  filter(YEAR_=="2019")
+
+fire_20 <- st_read("data/Fire/firep21.shp")%>%
+  st_transform('EPSG:2225')%>%     
+  filter(YEAR_=="2020")
+
+fire_21 <- st_read("data/Fire/firep21.shp")%>%
+  st_transform('EPSG:2225')%>%     
+  filter(YEAR_=="2021")
+
+fireall <- st_read("data/Fire/firep21.shp")%>%
+  st_transform('EPSG:2225')%>%     
+  filter(YEAR_=="2019"|YEAR_=="2020"|YEAR_=="2021")
+ 
+```
+
+## 2.1 Study Area
+
+We are selecting 2019 to 2021 as our study years and North California as our main study area, including 19 counties. One significant reason is that North California was experiencing more wildfires in the last three years, as is shown in the following map.
+
+```{r}
+#"#F96167""#FCE77D"
+ggplot() +
+  geom_sf(data = fireall, fill="#F96167", color="transparent")+
+ geom_sf(data=CA_county, fill="transparent", color = "grey60",size= 0.4)+
+  geom_sf(data=northCA, fill="transparent", color = "black",size= 0.6)+
+  labs(title="California Wildfires",
+       subtitle="Years 2019-2021")+
+  mapTheme()
+```
+
+
+## 2.2 Fishnet
+
+To set up a geospatial framework for further analysis of both shapefile and raster data, we create the fishnet grids of 3-mile grid cells within the North California boundary. It is a crucial step to decide the size of fishnet grid cells. If the fishnet grid cell size is too big, it will lower the resolution, whereas a smaller grid cell size could probably give us too much "no fire" data and brings challenges for fire prediction. We find that 3 miles is the common size of small wildfire incidents and could be a good size for our analysis.
+
+For the dependent variable "fire," we are going to divide them by three years and aggregate the fire data into the fishnet grid to visualize their distribution. The following map visualizes the 3-mile grid cell fishnet we construct.
+
+
+```{r , results='hide'}
+CAboundary<-st_union(CA_county)
+northCAboundary<-st_union(northCA)
+
+
+fishnet <- 
+  st_make_grid(northCAboundary,
+               cellsize = 4828.03, 
+               square = TRUE) %>%
+  .[northCAboundary] %>%            # fast way to select intersecting polygons
+  st_sf() %>%
+  mutate(uniqueID = 1:n())
+
+
+fire<- st_intersection(northCAboundary,fire)
+fire_18 <-st_intersection(northCAboundary,fire_18)
+fire_19 <-st_intersection(northCAboundary,fire_19)
+fire_20 <-st_intersection(northCAboundary,fire_20)
+fire_21 <-st_intersection(northCAboundary,fire_21)
+
+#st_write(fishnet,"fishnet.shp", driver = "ESRI Shapefile")
+
+#writeOGR(as.data.frame(fishnet), ".", "fishnet3mile", 
+#           driver = "ESRI Shapefile")
+```
+
+
+```{r}
+#Plot the fishnet
+
+ggplot()+
+
+  geom_sf(data = fire, fill="#F96167", color="transparent")+
+    geom_sf(data = fishnet, fill="transparent", color="grey",size= 0.1)+
+      geom_sf(data = northCAboundary, fill="transparent", color="black")+
+    labs(title="California Wildfires",
+       subtitle="Fishnet grid")+
+  mapTheme()
+  
+```
+
+
+ 
+## 2.3 Weather Data
+
+For raster data, we process the data in ArcGIS pro first following the workflow of calculating zonal statistics in fishnet grid to extract the mean or majority value from the raster layers.
+
+Based on the weather stations within and nearby the North CA boundary, We get the 2019-2021 June-October weather data with "riem" package in R. Then we export point data to GIS and do IDW analysis to get the raster weather map. Zonal statistic let us aggregate the weather feature into our fishnet grid. The map below shows the location of weather stations.
+
+
+
+```{r , results='hide'}
+weather_station_ids <- c("CEC", "SIY", "AAT", "MHS", "O86", "ACV",  "RDD", "SVE",
+                         "RBL", "UKI", "CIC", "OVE", "MYV", "BAB", "GOO", "BLU", "TRK",
+                         "TVL", "PVF", "MCC", "SMF",  "STS", "FOT", "AUN", "LHM")
+
+#"EKA",
+
+asos_stations <- riem_stations("CA_ASOS") %>% filter(str_detect(id, paste(weather_station_ids, collapse="|")))
+asos_stations$weather_station_id <- asos_stations$id
+
+
+get_weather_features_by_station <- function(weather_station_ids, start_year, end_year){
+  
+  year_vec <- seq(start_year, end_year)
+  i <- 1
+  weather_data_list <- list()
+  for(station_id in weather_station_ids){
+    print(paste("Processing station", station_id))
+    for(year in year_vec){
+      start_date = paste0(year, "06-01")
+      end_date = paste0(year, "10-31")
+      weather_data <- riem_measures(station = station_id, date_start = start_date, date_end = end_date) %>% 
+        dplyr::summarise(weather_station_id = station_id,
+                         year = year,
+                         Max_Temp = max(tmpf, na.rm = TRUE),
+                         Mean_Temp = mean(tmpf, na.rm = TRUE),
+                         Sum_Precipitation = sum(p01i, na.rm = TRUE),
+                         Mean_Precipitation = mean(p01i, na.rm = TRUE),
+                         Mean_Humidity = mean(relh, na.rm = TRUE),
+                         Mean_Wind_Speed = mean(sknt, na.rm = TRUE),
+        ) 
+      weather_data_list[[i]] <- weather_data
+      i <- i + 1
+    }
+  }
+  
+  do.call("rbind", weather_data_list) 
+}
+
+weather_data <- get_weather_features_by_station(weather_station_ids, 2019, 2021)
+
+weather<-merge(weather_data, asos_stations, by = "weather_station_id")
+weather2019 <- weather[weather$year == "2019",]
+weather2020 <- weather[weather$year == "2020",]
+weather2021 <- weather[weather$year == "2021",]
+```
+
+
+```{r}
+#coords <- cbind(weather2019$longitude, weather2019$latitude)   # x1: long; x2: lat
+stations_sf <- sf::st_as_sf(weather2019, coords = c("longitude", "latitude"), crs = 4326)  
+
+
+ggplot()+
+  geom_sf(data = fire, fill="#F96167", color="transparent")+
+      geom_sf(data = northCA, fill="transparent", color="grey60")+
+    geom_sf(data=stations_sf,fill="transparent", color = "#33638DFF",size= 2)+
+    labs(title="California Weather Stations",
+       subtitle="North CA")+
+  mapTheme()
+```
+
+
+
+```{r , results='hide'}
+fishnetcombined_19<-st_read("fishnet/fishnetcombined_2019_add.shp")  %>%
+  st_transform('EPSG:2225') %>%
+  dplyr::select(uniqueID,landcover,dem,urbandensi,agridensit,invasivede,fragmentat,intactness,slope,aspect,geometry, MEAN_Idw_M, MEAN_Idw_1, MEAN_Idw_2, MEAN_Idw_3, MEAN_Idw_4, MAJORITY)%>%
+   rename(urbandensity = urbandensi, 
+         agridensity = agridensit,
+         invasivedensity = invasivede, 
+         fragmentation = fragmentat,
+         Max_Temp = MEAN_Idw_M,
+         Mean_Temp = MEAN_Idw_1,
+         Mean_precipitation = MEAN_Idw_2,
+         Mean_Humidity = MEAN_Idw_3,
+         Mean_Wind_Speed = MEAN_Idw_4,
+         Vegetation_Type = MAJORITY)
+
+fishnetcombined_20<-st_read("fishnet/fishnetcombined_2020_add.shp")  %>%
+  st_transform('EPSG:2225') %>%
+  dplyr::select(uniqueID,landcover,dem,urbandensi,agridensit,invasivede,fragmentat,intactness,slope,aspect,geometry, MEAN_Idw_M, MEAN_Idw_1, MEAN_Idw_2, MEAN_Idw_3, MEAN_Idw_4, MAJORITY)%>%
+   rename(urbandensity = urbandensi, 
+         agridensity = agridensit,
+         invasivedensity = invasivede, 
+         fragmentation = fragmentat,
+         Max_Temp = MEAN_Idw_M,
+         Mean_Temp = MEAN_Idw_1,
+         Mean_precipitation = MEAN_Idw_2,
+         Mean_Humidity = MEAN_Idw_3,
+         Mean_Wind_Speed = MEAN_Idw_4,
+         Vegetation_Type = MAJORITY )
+
+
+fishnetcombined_21<-st_read("fishnet/fishnetcombined_2021_add.shp")  %>%
+  st_transform('EPSG:2225') %>%
+  dplyr::select(uniqueID,landcover,dem,urbandensi,agridensit,invasivede,fragmentat,intactness,slope,aspect,geometry, MEAN_Idw_M, MEAN_Idw_1, MEAN_Idw_2, MEAN_Idw_3, MEAN_Idw_4, MAJORITY)%>%
+   rename(urbandensity = urbandensi, 
+         agridensity = agridensit,
+         invasivedensity = invasivede, 
+         fragmentation = fragmentat,
+         Max_Temp = MEAN_Idw_M,
+         Mean_Temp = MEAN_Idw_1,
+         Mean_precipitation = MEAN_Idw_2,
+         Mean_Humidity = MEAN_Idw_3,
+         Mean_Wind_Speed = MEAN_Idw_4,
+         Vegetation_Type = MAJORITY )
+```
+
+
+
+
+The following maps visualize the weather features in fishnet in 2019 as an example, which includes Max Temperature, Mean Temperature, Mean Precipitation, Mean Humidity, Mean Wind Speed in year 2019.
+
+```{r fig.width=8, fig.height=8}
+
+W1<-ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = Max_Temp), color = NA) +
+  scale_fill_viridis(option = "B")+
+  labs(title = "Max Temperature",subtitle = "2019") +
+  mapTheme()  
+
+W2<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = Mean_Temp), color = NA) +
+  scale_fill_viridis(option = "B")+
+  labs(title = "Mean Temperature",subtitle = "2019") +
+  mapTheme()
+
+W3<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = Mean_precipitation), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "Mean Precipitation",subtitle = "2019") +
+  mapTheme()
+
+W4<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = Mean_Humidity), color = NA) +
+  scale_fill_viridis(option = "B")+
+  labs(title = "Mean Humidity",subtitle = "2019") +
+  mapTheme()
+
+W5<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = Mean_Wind_Speed), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "Mean Wind Speed",subtitle = "2019") +
+  mapTheme()
+
+
+grid.arrange(W1,W2,W3,W4,W5, ncol = 3)
+```
+
+
+
+## 2.4 Environmental Data
+
+Similarly, we process the environmental raster data in ArcGIS using zonal statistics to fishnet and reimport the data into R. The maps show the features we use, including elevation, slope, aspect, land cover, landscape fragmentation, intactness, urban development density, agriculture density, invasive density and vegetation types, which need more feature engineering in the next step.
+
+```{r fig.width=8, fig.height=8}
+
+A1<-ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = dem), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "North California Feature",subtitle = "Elevation") +
+  mapTheme()  
+
+A2<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = slope), color = NA) +
+  scale_fill_viridis(option = "B")+
+  labs(title = "North California Feature",subtitle = "Slope") +
+  mapTheme()
+
+A3<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = aspect), color = NA) +
+  scale_fill_viridis(option = "B")+
+  labs(title = "North California Feature",subtitle = "Aspect") +
+  mapTheme()
+
+A4<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = landcover), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "North California Feature",subtitle = "Landcover") +
+  mapTheme()
+
+A5<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = fragmentation), color = NA) +
+  scale_fill_viridis(option = "B")+
+  labs(title = "North California Feature",subtitle = "Landscape Fragmentation") +
+  mapTheme()
+
+A6<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = intactness), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "North California Feature",subtitle = "Landscape Intactness") +
+  mapTheme()
+
+
+A7<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = urbandensity), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "North California Feature",subtitle = "Urban Development Density") +
+  mapTheme()
+
+A8<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = agridensity), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "North California Feature",subtitle = "Agriculture Density") +
+  mapTheme()
+
+A9<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = invasivedensity), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "North California Feature",subtitle = "Invasive Density") +
+  mapTheme()
+
+A10<-
+ggplot()+
+  geom_sf(data=fishnetcombined_19, aes(fill = Vegetation_Type), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "North California Feature",subtitle = "Vegetation_Type") +
+  mapTheme()
+
+
+grid.arrange(A1,A2,A3,A4,A5,A6,A7,A8,A9,A10, ncol = 3)
+```
+
+After we have the data reimported, we aggregate the fire data into the fishnet in each year and get the binary variable "fire". We also get the countyname variable as our spatial feature.
+
+```{r, results='hide'}
+firenet_18<-
+  st_intersection(st_sf(fire_18),fishnetcombined_19) %>%
+  select(uniqueID) %>%
+  st_drop_geometry() %>%
+  mutate(fire = 1) %>%
+  distinct()
+
+fishnet_fire_18 <-
+  fishnetcombined_19 %>%
+  left_join(., firenet_18, on= 'uniqueID') %>%
+  mutate(fire= ifelse(is.na(fire),0,fire),
+         year="2018") 
+  
+firenet_19<-
+  st_intersection(st_sf(fire_19),fishnetcombined_19) %>%
+  select(uniqueID) %>%
+  st_drop_geometry() %>%
+  mutate(fire = 1) %>%
+  distinct()
+
+fishnet_fire_19 <-
+  fishnetcombined_19 %>%
+  left_join(., firenet_19, on= 'uniqueID') %>%
+  mutate(fire= ifelse(is.na(fire),0,fire),
+         year="2019") 
+
+firenet_20<-
+  st_intersection(st_sf(fire_20),fishnetcombined_20) %>%
+  select(uniqueID) %>%
+  st_drop_geometry() %>%
+  mutate(fire = 1) %>%
+  distinct()
+
+fishnet_fire_20 <-
+  fishnetcombined_20 %>%
+  left_join(., firenet_20, on= 'uniqueID') %>%
+  mutate(fire= ifelse(is.na(fire),0,fire),
+         year="2020") 
+
+
+firenet_21<-
+  st_intersection(st_sf(fire_21),fishnetcombined_21) %>%
+  select(uniqueID) %>%
+  st_drop_geometry() %>%
+  mutate(fire = 1) %>%
+  distinct()
+
+fishnet_fire_21 <-
+  fishnetcombined_21 %>%
+  left_join(., firenet_21, on= 'uniqueID') %>%
+  mutate(fire= ifelse(is.na(fire),0,fire),
+         year="2021") 
+  
+  
+```
+
+
+
+```{r, results='hide'}
+northCA<-northCA%>%
+  rename(countyname = COUNTY_NAM)
+  
+fishnet_fire_19 <-
+  st_centroid(fishnet_fire_19) %>%
+    st_join(dplyr::select(northCA, countyname), by = "uniqueID") %>%
+      st_drop_geometry() %>%
+      left_join(dplyr::select(fishnet_fire_19, geometry, uniqueID)) %>%
+      st_sf() %>%
+  na.omit()
+
+fishnet_fire_20 <-
+  st_centroid(fishnet_fire_20) %>%
+    st_join(dplyr::select(northCA, countyname), by = "uniqueID") %>%
+      st_drop_geometry() %>%
+      left_join(dplyr::select(fishnet_fire_20, geometry, uniqueID)) %>%
+      st_sf() %>%
+  na.omit()
+
+fishnet_fire_21 <-
+  st_centroid(fishnet_fire_21) %>%
+    st_join(dplyr::select(northCA, countyname), by = "uniqueID") %>%
+      st_drop_geometry() %>%
+      left_join(dplyr::select(fishnet_fire_21, geometry, uniqueID)) %>%
+      st_sf() %>%
+  na.omit()
+
+
+fishnet_fire<-rbind(fishnet_fire_21,fishnet_fire_20,fishnet_fire_19)
+```
+
+
+
+## 2.5 Anthropogenic Data
+
+Besides the raster data, we find articles saying that a certain amount of wildfires are caused by anthropogenic factors like camping. In this case, we add the point data of fire facilities, campgrounds and electric substations. The following maps visualize the location of these features. 
+
+```{r, results='hide'}
+facility<-st_read("data/facility/facility.shp")  %>%
+  st_transform('EPSG:2225')
+
+camp<-st_read("data/camp/Campgrounds.shp")  %>%
+  st_transform('EPSG:2225')
+
+Electric_Substations<-st_read("data/California_Electric_Substations/CA_Substations_Final.shp")  %>%
+  st_transform('EPSG:2225')
+
+
+
+
+
+```
+
+
+```{r}
+grid.arrange(ncol = 3,
+             
+ggplot()+
+  geom_sf(data = northCA, fill="transparent", color="grey")+
+      geom_sf(data = fire, fill="#F96167", color="transparent")+
+    geom_sf(data = northCAboundary, fill="transparent", color="black")+
+  geom_sf(data = st_intersection(northCAboundary,facility), fill="transparent", color="#33638DFF")+
+  labs(title = "North CA Feature",subtitle = "Fire Facility") +
+  mapTheme(),
+
+ggplot()+
+  geom_sf(data = northCA, fill="transparent", color="grey")+
+    geom_sf(data = fire, fill="#F96167", color="transparent")+
+    geom_sf(data = northCAboundary, fill="transparent", color="black")+
+  geom_sf(data = st_intersection(northCAboundary,camp), fill="transparent", color="#33638DFF")+
+  labs(title = " ",subtitle = "Campgrounds") +
+  mapTheme(),
+
+ggplot()+
+  geom_sf(data = northCA, fill="transparent", color="grey")+
+    geom_sf(data = fire, fill="#F96167", color="transparent")+
+    geom_sf(data = northCAboundary, fill="transparent", color="black")+
+  geom_sf(data = st_intersection(northCAboundary,Electric_Substations), fill="transparent", color="#33638DFF")+
+  labs(title = " ",subtitle = "Electric Substations") +
+  mapTheme())
+
+#33638DFF
+#FDE725FF
+```
+
+To aggregate these point data into our fishnet grid, we calculate the distance from each grid cell centre to the nearest three points as "facility.nn", "camp.nn" and "electric.nn".
+
+
+```{r, results='hide'}
+# convinience to reduce length of function names.
+st_c    <- st_coordinates
+st_coid <- st_centroid
+
+## create NN 
+fishnet_fire <- fishnet_fire %>%
+    mutate(facility.nn = nn_function(st_c(st_coid(fishnet_fire)), 
+                                           st_c(st_coid(facility)),3),
+           camp.nn = nn_function(st_c(st_coid(fishnet_fire)), 
+                                           st_c(st_coid(camp)),3),
+           electric.nn = nn_function(st_c(st_coid(fishnet_fire)), 
+                                           st_c(st_coid(Electric_Substations)),3))
+```
+
+
+
+# 3. Variables and Feature Engineering
+## 3.1 Feature Engineering
+
+
+After the data wrangling and visualization, in this feature engineering part, we modified and reclassifies several variables which did not make sense to have as they were presented. These are the reclassified features:\n
+
+-**Land cover:** It does not make sense to have land cover as continuous factor, we reclassify and group land cover into "landcover_group" of 9 types.\n
+
+-**Slope:** we regroup the slope into "low", "medium", "high" by using "slope_group".\n
+
+-**Aspect:** "Aspect_group" is used to feature engineer the aspect into correct categories.\n
+
+-**Vegetation:** We reclassify and group vegetation types into "vegetation_group" of 10 types.\n
+\n
+
+
+Besides that, we believe it might be helpful to have more distance features to improve the accuracy of our model. We then use "nn_function" to add the features:\n
+
+-**Conifer:** Conifer is a vegetation type that wildfires usually start from. So we calculate "conifer.nn".\n
+
+-**Hardwood:** Similarly, we calculate the distance to hardwood as "hardwood.nn".\n
+
+-**Previous year fire:** It worth thinking spatially how the previous year fire might help predict the wildfire location this year, so we calculate the mean distance from each fishnet cell to the three nearest "last year fire cells", in which case we are also using the 2018 fire data for the 2019 fishnet cells.\n
+
+
+
+```{r}
+## Categorical
+fishnet_fire <- fishnet_fire %>% 
+  mutate(landcover_group = case_when(landcover=="11"|landcover=="12" ~ "water",
+                                    landcover=="21"|landcover=="22"|landcover=="23"|landcover=="24" ~ "developed",
+                                    landcover=="31" ~ "barren",
+                                   landcover=="41"|landcover=="42"|landcover=="43" ~ "forest",
+                                   landcover=="52" ~ "shrub",
+                                 landcover=="71"~"herbaceous",
+                                 landcover=="81"~"pasture",
+                                 landcover=="82"~"crops",
+                                 landcover=="90"|landcover=="95"~"wetland",
+                                 landcover=="0"~"unclassified"))
+
+
+fishnet_fire <- fishnet_fire %>% 
+  mutate(slope_group = case_when(slope < 4 ~ "low",
+                                  slope >=4 & slope <9 ~ "medium",
+                                   slope >=9 ~ "high" ))
+
+fishnet_fire <- fishnet_fire %>% 
+  mutate(aspect_group = case_when(aspect >=-1 & aspect <0 ~ "flat",
+                                  aspect >=0 & aspect <22.5 ~ "north",
+                                  aspect >=22.5 & aspect <67.5 ~ "northeast",
+                                  aspect >=67.5 & aspect <112.5 ~ "east",
+                                  aspect >=112.5 & aspect <157.5 ~ "southeast",
+                                  aspect >=157.5 & aspect <202.5 ~ "south",
+                                  aspect >=202.5 & aspect <247.5 ~ "southwest",
+                                  aspect >=247.5 & aspect <292.5 ~ "west",
+                                  aspect >=292.5 & aspect <337.5 ~ "northwest",
+                                  aspect >=337.5 & aspect <360 ~ "north"))
+
+conifercell<-fishnet_fire %>% 
+  filter(Vegetation_Type=="Conifer",year=="2019")%>%
+  st_centroid()
+
+fishnet_fire <- fishnet_fire %>% 
+  mutate(Vegetation_group = case_when(Vegetation_Type == "1"  ~ "Agriculture",
+                                  Vegetation_Type == "2"   ~ "Barren",
+                                  Vegetation_Type == "3"  ~ "Conifer",
+                                  Vegetation_Type == "4"  ~ "Desert",
+                                  Vegetation_Type == "5"  ~ "Hardwood",
+                                  Vegetation_Type == "6"  ~ "Herbaceous",
+                                  Vegetation_Type == "7"  ~ "Shrub",
+                                  Vegetation_Type == "8"  ~ "Urban",
+                                  Vegetation_Type == "9"  ~ "Water",
+                                  Vegetation_Type == "10"  ~ "Wetland"),
+         conifer.nn = nn_function(st_c(st_coid(fishnet_fire)), 
+                                  st_c(st_coid(fishnet_fire %>% 
+                                  filter(Vegetation_group=="Conifer",year=="2019"))),3),
+         hardwood.nn = nn_function(st_c(st_coid(fishnet_fire)), 
+                                   st_c(st_coid(fishnet_fire %>%
+                                  filter(Vegetation_group=="Hardwood",year=="2019"))),3),
+         
+         fire.nn.2018  = nn_function(st_c(st_coid(fishnet_fire)), 
+                                   st_c(st_coid(fishnet_fire_18 %>%
+                                  filter(fire=="1",year=="2018"))),3),
+         fire.nn.2019  = nn_function(st_c(st_coid(fishnet_fire)), 
+                                   st_c(st_coid(fishnet_fire %>%
+                                  filter(fire=="1",year=="2019"))),3),
+           fire.nn.2020  = nn_function(st_c(st_coid(fishnet_fire)), 
+                                   st_c(st_coid(fishnet_fire %>%
+                                  filter(fire=="1",year=="2020"))),3),
+          fire.nn.2021  = nn_function(st_c(st_coid(fishnet_fire)), 
+                                   st_c(st_coid(fishnet_fire %>%
+                                  filter(fire=="1",year=="2021"))),3),
+         fire.nn = case_when(year == "2019"  ~ fire.nn.2018,
+                             year == "2020"  ~ fire.nn.2019,
+                             year == "2021"  ~ fire.nn.2020))
+
+
+
+
+
+```
+
+
+
+## 3.2 Exploratory Analysis
+
+To understand the correlation between the variables and the "wildfire" occurrence, the following bar plot and correlation matrix is made for the continuous variables.
+
+The bar plots shows that agriculture and urban density are strongly correlated with "no fire" situation. But we would value the factors that contribute to the "fire" occurrence more, which are the electric.nn, camp.nn, dem, slope and intactness.
+
+In the correlation matrix, none of our numeric variables are strongly correlated with whether or not a wildfire would take place. But some of our numeric variables may be colinear.
+
+
+```{r fig.height=8, fig.width=8}
+fishnet_fire$fire_tf <- ifelse(fishnet_fire$fire==1,"Fire","No Fire")
+
+fishnet_fire %>% st_drop_geometry() %>%
+  dplyr::select(fire_tf,dem,aspect,slope, 
+                landcover,intactness,fragmentation,
+                agridensity,urbandensity,agridensity,
+                facility.nn,camp.nn,electric.nn,fire.nn,
+                Max_Temp,Mean_Temp,Mean_precipitation,Mean_Humidity,Mean_Wind_Speed) %>%
+  gather(Variable, value, -fire_tf) %>%
+  ggplot(aes(fire_tf, value, fill=fire_tf))  + 
+    geom_bar(position = "dodge", stat = "summary", fun = "mean") + 
+    facet_wrap(~Variable, scales = "free") +
+    scale_fill_manual(values = palette2) +
+    labs(x="Fire", y="Mean", 
+         title = "Feature associations with the likelihood of Wildfire",
+         subtitle = "(Continous outcomes)") +
+    plotTheme() + theme(legend.position = "none")
+```
+
+
+```{r}
+vars1 <- 
+  select_if(fishnet_fire, is.numeric) %>% na.omit() %>%
+  st_drop_geometry() %>%
+  dplyr::select(fire,dem,slope, 
+                intactness,fragmentation,
+                agridensity,urbandensity,agridensity,
+                facility.nn,camp.nn,hardwood.nn,conifer.nn,electric.nn,fire.nn,
+                Max_Temp,Mean_Temp,Mean_precipitation,Mean_Humidity,Mean_Wind_Speed)
+
+ggcorrplot(
+  round(cor(vars1), 1), 
+  p.mat = cor_pmat(vars1),
+  colors = c("#25CB10", "white", "#FA7800"),
+  type="lower",
+  insig = "blank") +  
+  labs(title = "Correlation across Characteristics") 
+```
+
+# 4. Logistic Regression
+## 4.1 Model Compare
+
+We are using three regression models below to understand whether feature engineering and spatial-temporal factors could improve the model:\n 
+
+**Model 1:** One is the draft model of raw data.  \n
+
+**Model 2:** One is the feature engineered model using feature engineered variables.\n
+
+**Model 3:** One is the most comprehensive model with feature engineered variables and spatial-temporal factors of weather and spatial cluster features like "fire.nn" and "countyname"\n
+
+We are using 65% of the dataset as training set and 35% as testing set.
+
+```{r,results='hide'}
+set.seed(3456)
+trainIndex <- createDataPartition( y = paste(fishnet_fire$landcover_group,fishnet_fire$slope_group,fishnet_fire$aspect_group,fishnet_fire$Vegetation_group), p = .65,
+                                   
+                                  list = FALSE,
+                                  times = 1)
+
+fireTrain <- fishnet_fire[ trainIndex,] %>% st_drop_geometry()
+fireTest  <- fishnet_fire[-trainIndex,] %>% st_drop_geometry()
+```
+
+
+```{r, results='hide'}
+
+firemodel1 <- glm(fire ~ .,
+                  data=fireTrain %>% 
+                    dplyr::select(dem,aspect,slope, 
+                landcover,intactness,fragmentation,
+                agridensity,urbandensity,invasivedensity,Vegetation_Type,
+                facility.nn,camp.nn,electric.nn,fire),
+                  family="binomial" (link="logit"))
+
+summary(firemodel1)
+
+```
+
+```{r, results='hide'}
+
+firemodel2 <- glm(fire ~ .,
+                  data=fireTrain %>% 
+                    dplyr::select(dem,aspect_group,slope_group, 
+                landcover_group,intactness,fragmentation,
+                agridensity,urbandensity,invasivedensity,Vegetation_group,
+                facility.nn,camp.nn,electric.nn,fire,hardwood.nn,conifer.nn),
+                  family="binomial" (link="logit"))
+
+summary(firemodel2)
+
+```
+
+```{r, results='hide'}
+
+firemodel3 <- glm(fire ~ .,
+                  data=fireTrain %>% 
+                    dplyr::select(dem,aspect_group,slope_group, 
+                landcover_group,intactness,fragmentation,
+                agridensity,urbandensity,invasivedensity,
+                facility.nn,camp.nn,fire,electric.nn,hardwood.nn,conifer.nn,fire.nn,countyname,
+                Max_Temp,Mean_Temp,Mean_precipitation,Mean_Humidity,Mean_Wind_Speed, Vegetation_group),
+                  family="binomial" (link="logit"))
+
+summary(firemodel3)
+
+```
+
+Based on the following table of McFadden, we find our model 3 with feature engineering is much better than the raw model 1. The McFadden of model 3 is around 0.218, which suggests it performs good to predict the wildfire occurrence.
+
+
+```{r}
+pR2(firemodel1)
+pR2(firemodel2)
+pR2(firemodel3)
+```
+
+
+
+```{r, results='hide'}
+## Prediction
+testfire <- data.frame(Outcome = as.factor(fireTest$fire),
+                        Probs = predict(firemodel3, fireTest, type= "response"))
+
+testfire1 <- data.frame(Outcome = as.factor(fireTest$fire),
+                        Probs = predict(firemodel1, fireTest, type= "response"))
+
+testfire2 <- data.frame(Outcome = as.factor(fireTest$fire),
+                        Probs = predict(firemodel2, fireTest, type= "response"))
+```
+
+## 4.2 ROC Curve
+
+To further compare the three models, we plot the ROC curve for each of them.
+
+The output of the logistic models are the probabilities to take credit ranging from 0 to 1. The Receiver Operating Characteristics (ROC) Curve visualizes the trade-off between sensitivity and specificity when altering the cutting threshold, while also providing a single goodness of fit indicator. 
+
+The model3 ROC curve has more area under the curve (AUC) 0.8467, which has higher goodness of fit than the first two models. It indicates that our model predicts reasonably well, and the users of the SmarBurn app can trust our prediction to do prescribed burns. 
+
+
+```{r fig.height=4, fig.width=8}
+
+grid.arrange(ncol = 3,
+             
+
+
+ggplot(testfire1, aes(d = as.numeric(testfire1$Outcome), m = Probs)) +
+  geom_roc(n.cuts = 50, labels = FALSE, colour = "#FE9900") +
+  style_roc(theme = theme_grey) +
+  geom_abline(slope = 1, intercept = 0, size = 1.5, color = 'grey') +
+  labs(title = "ROC Curve",subtitle = "Draft Model"),
+
+ggplot(testfire2, aes(d = as.numeric(testfire2$Outcome), m = Probs)) +
+  geom_roc(n.cuts = 50, labels = FALSE, colour = "#FE9900") +
+  style_roc(theme = theme_grey) +
+  geom_abline(slope = 1, intercept = 0, size = 1.5, color = 'grey') +
+  labs(title = "",subtitle = "Model with Feature Engineering"),
+
+ggplot(testfire, aes(d = as.numeric(testfire$Outcome), m = Probs)) +
+  geom_roc(n.cuts = 50, labels = FALSE, colour = "#FE9900") +
+  style_roc(theme = theme_grey) +
+  geom_abline(slope = 1, intercept = 0, size = 1.5, color = 'grey') +
+  labs(title = "",subtitle ="Model with Temporal and Spatial Factors"))
+```
+
+```{r}
+# ROC Curve
+
+auc(testfire$Outcome, testfire$Probs)
+```
+
+## 4.3 Predicted Probabilities
+
+Then we select model3 for the further model analysis. According to the plot "distribution of predicted probabilities by observed outcome", our model have high specificity and low sensitivities, which means it is good at predicting the "no fire" situation.
+
+This probability plot also raises the question of cutting threshold above which the model classifies the grid cells as wildfire risk cells. It doesn't make sense to have default threshold of 0.5 because that will not perform well to predict the "1", the observed fire.
+
+```{r}
+
+ggplot(testfire, aes(x = Probs, fill = as.factor(Outcome))) + 
+  geom_density() +
+  facet_grid(Outcome ~ .)  + xlim(0, 1)+
+  scale_fill_manual(values = palette3) +
+  labs(x = "Wildfire", y = "Density of probabilities",
+       title = "Distribution of predicted probabilities by observed outcome",
+       subtitle = "Wildfire Model") +
+    plotTheme() +
+  theme(strip.text.x = element_text(size = 18),
+        legend.position = "none")
+```
+```{r}
+testfire_1 <- testfire %>% filter (Outcome=="1")
+testfire_0 <- testfire %>% filter (Outcome=="0")
+
+B1<-
+  hist(testfire_1$Probs, col="#F96167",main="Predicted Probabilities for Cells with Fire", 
+
+     xlab="Probability")
+B2<-
+  hist(testfire_0$Probs, col="#FCE77D",main="Predicted Probabilities for Cells without Fire",
+     xlab="Probability")
+
+```
+
+
+## 4.4 Confusion Matrix
+
+To understand how different thresholds would change the sensitivity and specificity for the model. We make two confusion matrix based on threshold 0.5 and 0.1. The confusion matrix could be interpreted as follow: \n
+
+1. **True positive** means we predicted there is wildfire and there is observed fire.\n
+
+2. **True negative** means we predicted there is no wildfire and in fact there isn't. (0 - observed, 0 - predicted)\n
+
+3. **False positive** means we predicted there is wildfire, but there is not. (0 - observed, 1 - predicted)\n
+
+4. **False negative** means we predicted no wildfire, but there is fire occurred. (0 - observed, 1 - predicted)\n
+
+
+It shows that when using 0.5 as threshold, our model has the sensitivity 0.0087794 and specificity 0.9993194, which is extremely good at predicting the "no fire" cases; while using 0.1 as threshold will improve our model's sensitivity 0.70462, which means it could better predict wildfire occurrence.
+
+
+#### Confusion matrix using 0.5 as threshold
+
+```{r}
+## Confusion matrix using 0.5
+testfire <- 
+  testfire %>%
+  mutate(predOutcome  = as.factor(ifelse(testfire$Probs > 0.5 , 1, 0)))
+
+caret::confusionMatrix(testfire$predOutcome, testfire$Outcome, 
+                       positive = "1")
+```
+
+#### Confusion matrix using 0.1 as threshold
+
+
+```{r}
+## Confusion matrix using 0.1
+testfire <- 
+  testfire %>%
+  mutate(predOutcome  = as.factor(ifelse(testfire$Probs > 0.1, 1, 0)))
+
+caret::confusionMatrix(testfire$predOutcome, testfire$Outcome, 
+                       positive = "1")
+```
+
+# 5. Validation
+## 5.1 Cross Validation
+
+To test the generalizability of our model. We first performed cross validation with 100 k folds. The plots below visualize the area under the ROC curve, sensitivity, and specificity of our model3 across folds. Each of these plots are clustered around the mean, indicating our model has decent generalizability. However, similar to what we have mentioned, the results show high specificity and low sensibility. The generalizability of the model’s sensitivity could be improved.
+
+
+```{r, results='hide'}
+ctrl <- trainControl(method = "cv", number = 100, classProbs=TRUE, summaryFunction=twoClassSummary)
+
+cvfiremodel <-train(fire_tf ~ .,
+               data=fishnet_fire %>% 
+                 st_drop_geometry() %>%
+                 dplyr::select(fire_tf,dem,aspect_group,slope_group, 
+                landcover_group,intactness,fragmentation,
+                agridensity,urbandensity,invasivedensity,
+                facility.nn,camp.nn,electric.nn,hardwood.nn,conifer.nn,fire.nn,
+                Max_Temp,Mean_Temp,Mean_precipitation,Mean_Humidity,Mean_Wind_Speed,countyname)%>%
+              dplyr::mutate(fire_tf = ifelse(fire_tf=="Fire","fire","nofire")), 
+               method="glm", family="binomial",
+               metric="ROC", trControl = ctrl)
+  
+cvfiremodel
+```
+
+
+
+```{r}
+  dplyr::select(cvfiremodel$resample, -Resample) %>%
+  gather(metric, value) %>%
+  left_join(gather(cvfiremodel$results[2:4], metric, mean)) %>%
+  ggplot(aes(value)) + 
+  geom_histogram(bins=35, fill = "#FF006A") +
+    facet_wrap(~metric) +
+  geom_vline(aes(xintercept = mean), colour = "#981FAC", linetype = 3, size = 1.5) +
+
+  labs(x="Goodness of Fit", y="Count", title="CV Goodness of Fit Metrics \n Wildfire Model",
+       subtitle = "Across-fold mean reprented as dotted lines")
+```
+
+
+
+## 5.2 Spatial Cross Validation
+
+Wildfire tends to occur in clusters spatially. We also did a spatial cross validation on the 2020 data based on the county. By leaving out one county at a time, we were able to see how well our model predicts across space.
+
+```{r, results='hide'}
+reg.vars <- c("dem","aspect_group","slope_group", 
+                "landcover_group","intactness","fragmentation",
+                "agridensity","urbandensity","invasivedensity",
+                "facility.nn","camp.nn","electric.nn","hardwood.nn","conifer.nn","Max_Temp","Mean_Temp","Mean_precipitation","Mean_Humidity","Mean_Wind_Speed", "Vegetation_group")
+
+reg.ss.vars <- c("dem","aspect_group","slope_group", 
+                "landcover_group","intactness","fragmentation",
+                "agridensity","urbandensity","invasivedensity",
+                "facility.nn","camp.nn","electric.nn","hardwood.nn","conifer.nn","fire.nn",
+                "Max_Temp","Mean_Temp","Mean_precipitation","Mean_Humidity","Mean_Wind_Speed","Vegetation_group")
+
+
+## RUN REGRESSIONS
+#reg.cv<- crossValidate(
+ # dataset = fishnet_fire,
+ # id = "countyname",
+ # dependentVariable = "fire",
+#  indVariables = reg.vars) %>%
+ #   dplyr::select(cvID = countyname, fire, Prediction, geometry)
+
+
+reg.ss.spatialCV <- crossValidate(
+  dataset = fishnet_fire%>%
+    filter(year=="2020"),
+  id = "countyname",
+  dependentVariable = "fire",
+  indVariables = reg.ss.vars) %>%
+    dplyr::select(cvID = countyname, fire, Prediction, geometry)
+
+```
+
+The map below shows the actual fires and predicted probabilities for each county in North California. It shows that the model could predict most of the wildfires in each county. But there are still some counties have unpredicted fire while some don't observe wildfire in the high risk areas.
+
+
+```{r}
+#limits = c(0,1),
+
+ggplot() +
+  geom_sf(data = reg.ss.spatialCV, aes(fill = Prediction), color = "transparent")+
+  #scale_fill_gradientn(colours=c("#0c2a50ff", "#f68f46ff", "#efe350ff"))+
+  scale_fill_viridis(limits = c(0,1),option = "B")+
+   geom_sf(data = reg.ss.spatialCV[reg.ss.spatialCV$Prediction>1,], fill="yellow", color = "transparent")+
+  geom_sf(data = fire_20, fill = "transparent", color = "red", size=.3)+
+  geom_sf(data=northCA, fill="transparent")+
+  labs(title="Predicted Probabilities and Actual Fires",
+       subtitle="2020, Red outline marks perimeter of actual fires")+
+  mapTheme()
+
+```
+
+
+
+# 6. Cost Benefit Analysis
+## 6.1 Generating costs and benefits
+
+The costs and benefits of prescribed burns could be complex to calculate. Cost/acre is not an accurate metric for prescribed burns since it could vary from $100 to $1000 based on location, size, and many other factors. We considered some prescribed burns cases in the Northern California range in recent years to simplify the analysis process and estimated $300/acre. As for fire damage per acre, we calculated based on the total lost/burn area in 2018 and 2020, and the estimation is $2500/acre. Each fishnet cell is 9 square miles, which is 9*640 acres. Below is the explanation of how we split the cost and loss among the possible outcomes:\n
+
+1. **True negative**: predicted no wildfire, no prescribed burn happens, no cost, and no loss. The equation for both is 0.\n
+
+2. **True positive**: successfully predicted wildfire will occur, the government spends $300/acre on prescribed burns, the cost will be (Count x 9 x 640 x 300).\n
+
+3. **False negative**: predicted no wildfire, but it actually happened. The damage of wildfire is $2850/acre. The loss will be (Count x 9 x 640 x 2500).\n
+
+4. **False positive**: predicted wildfire would occur, but it did not. The government spends $300/acre on prescribed burns. The cost will be (Count x 9 x 640 x 300).\n
+
+
+
+```{r}
+## Cost benefit
+testfire <- 
+  testfire %>%
+  mutate(predOutcome  = as.factor(ifelse(testfire$Probs > 0.5 , 1, 0)))
+
+caret::confusionMatrix(testfire$predOutcome, testfire$Outcome, 
+                       positive = "1")
+
+cost_benefit_table <-
+  testfire %>%
+  count(predOutcome, Outcome) %>%
+  summarize(True_Negative = sum(n[predOutcome==0 & Outcome==0]),
+                True_Positive = sum(n[predOutcome==1 & Outcome==1]),
+                False_Negative = sum(n[predOutcome==0 & Outcome==1]),
+                False_Positive = sum(n[predOutcome==1 & Outcome==0])) %>%
+  gather(Variable, Count) %>%
+  mutate(Total_Cost =
+           case_when(Variable == "True_Negative" ~ Count*0,
+                Variable == "True_Positive" ~ Count*9*640*300,
+                Variable == "False_Negative" ~ Count*0,
+                Variable == "False_Positive" ~ Count*9*640*300)) %>%
+  mutate(Total_Loss =
+           case_when(Variable == "True_Negative" ~ Count*0,
+                Variable == "True_Positive" ~ Count*0,
+                Variable == "False_Negative" ~ Count*(9*640*2500),
+                Variable == "False_Positive" ~ Count*0)) %>%
+  bind_cols(data.frame(Description = c(
+    "We correctly predicted not having wildfire",
+    "We correctly predicted having wildfire",
+    "We predicted not hvaing wildfire but fire happened",
+    "We predicted having wildfire but fire didn't happen")))
+
+kable(cost_benefit_table,
+      caption = "Cost/Loss Table (Threshold=0.5)") %>% kable_styling()
+```
+
+## 6.2 Threshold optimization
+
+The following plot shows model total cost and total loss for each threshold. Our goal is to minimize the total loss. 
+
+To optimize the threshold, "Total_Balance" is calculated: Total_Balance= - Total_cost - Total_loss. The  plot is clear to see the Total_Balance changing with threshold increasing, and there is a high point for Total_Balance when threshold arrives around 0.1.
+
+```{r}
+whichThreshold <- 
+  iterateThresholds(
+     data=testfire, observedClass = Outcome, predictedProbs = Probs)
+
+whichThreshold[1:5,]
+```
+
+```{r, results='hide'}
+whichThreshold <- 
+  whichThreshold %>%
+    dplyr::select(starts_with("Count"), Threshold) %>%
+    gather(Variable, Count, -Threshold) %>%
+    mutate(Total_Cost =
+           case_when(Variable == "Count_TN" ~ Count*0,
+                Variable == "Count_TP" ~ Count*9*640*300,
+                Variable == "Count_FN" ~ Count*0,
+                Variable == "Count_FP" ~ Count*9*640*300)) %>%
+  mutate(Total_Loss =
+           case_when(Variable == "Count_TN" ~ Count*0,
+                Variable == "Count_TP" ~ Count*0,
+                Variable == "Count_FN" ~ Count*(9*640*2500),
+                Variable == "Count_FP" ~ Count*0)) 
+```
+
+```{r}
+
+whichThreshold %>%
+  ggplot(.,aes(Threshold, Total_Cost, colour = Variable)) +
+  geom_point() +
+  scale_colour_manual(values = palette5[c(5, 1:3)]) +    
+  labs(title = "Total_Cost to prevent wildfire",subtitle = "By confusion matrix type and threshold",
+       y = "Total_Cost") +
+  plotTheme() +
+  guides(colour=guide_legend(title = "Confusion Matrix"))
+
+```
+
+
+```{r}
+
+whichThreshold %>%
+  ggplot(.,aes(Threshold, Total_Loss, colour = Variable)) +
+  geom_point() +
+  scale_colour_manual(values = palette5[c(5, 1:3)]) +    
+  labs(title = "Total_Loss of wildfire damage",subtitle = "By confusion matrix type and threshold",
+       y = "Total_Loss") +
+  plotTheme() +
+  guides(colour=guide_legend(title = "Confusion Matrix"))
+```
+
+```{r}
+whichThreshold_HCD <- 
+  whichThreshold %>% 
+  group_by(Threshold) %>%
+    summarize(Total_Cost = sum(Total_Cost),
+              Total_Loss = sum(Total_Loss),
+              Total_Balance = -Total_Cost - Total_Loss
+              )
+
+whichThreshold_HCD[1:5,]
+```
+
+The following plot and table list our optimized threshold: 0.11. Comparing to the default threshold 0.5, it significantly decrease the total loss from 50517504000 to 35210880000, which helps the department to minimize the damage caused by wildfire.
+
+
+
+```{r}
+ggplot(whichThreshold_HCD)+
+    geom_line(aes(x = Threshold, y = Total_Balance,colour = "palette2"),size = 1.5)+
+    scale_colour_manual(values = palette2) +
+    geom_vline(xintercept = pull(arrange(whichThreshold_HCD, -Total_Balance)[1,1])) +
+ 
+    labs(title = "Total Balance By Threshold For Test Sample",
+         subtitle = "Vertical line denotes optimal threshold")+plotTheme()+theme(legend.position = "none")
+```
+
+```{r}
+# Optimal Threshold
+optimum_threshold <- pull(arrange(whichThreshold_HCD, -Total_Balance)[1,1])
+
+opt <- 
+  whichThreshold %>% 
+  group_by(Threshold) %>% 
+    summarize(Total_Cost = sum(Total_Cost),
+              Total_Loss = sum(Total_Loss),
+              Total_Balance = -Total_Cost - Total_Loss) %>%
+  filter(Threshold == optimum_threshold)
+
+fifty_thresh <-
+  whichThreshold %>% 
+  group_by(Threshold) %>% 
+    summarize(Total_Cost = sum(Total_Cost),
+              Total_Loss = sum(Total_Loss),
+              Total_Balance = -Total_Cost - Total_Loss) %>%
+  filter(Threshold == 0.5)
+
+final <- data.frame(rbind(opt, fifty_thresh))
+
+kable(final,
+      caption = "Optimum Threshold and 50% Threshold") %>% kable_styling()
+```
+
+
+
+# 7. Result
+
+With all the modeling, validation and threshold optimization work done, we are able to come to the final prediction results. The first set of maps below visualize the distribution of predicted wildfire probabilities in year 2019, 2020 and 2021. 
+
+By considering the optimized threshold for our app model, the second set of maps below classify and visualize the predicted wildfire areas in each year where the government and forest management department need to be alarmed and take action like doing prescribed burn.
+
+We can find that the predicted areas have covered most of the observed fires and tend to be larger than the actual fires, which actually corresponds to our SmartBurn App's goal: prescribed burn management better than wildfire burning.
+
+
+```{r, results='hide'}
+## Prediction
+predfire <- data.frame(Outcome = as.factor(fishnet_fire$fire),
+                        Probs = predict(firemodel3, fishnet_fire, type= "response"),
+                        uniqueID= fishnet_fire$uniqueID,
+                       year= fishnet_fire$year)
+
+predfire <- predfire %>%
+  mutate(predOutcome  = as.factor(ifelse(predfire$Probs > 0.11 , 1, 0)))
+
+fishnet_predfire19 <- left_join(fishnet_fire_19,predfire[predfire$year==2019,], on = "uniqueID")
+fishnet_predfire20 <- left_join(fishnet_fire_20,predfire[predfire$year==2020,], on = "uniqueID")
+fishnet_predfire21 <- left_join(fishnet_fire_21,predfire[predfire$year==2021,], on = "uniqueID")
+```
+
+```{r fig.height=6, fig.width=8}
+grid.arrange(ncol = 3,
+             
+ggplot()+
+  geom_sf(data=fishnet_predfire19, aes(fill = Probs), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "Wildfire Probabilities",subtitle = "North California 2019") +
+  mapTheme(),
+
+ggplot()+
+  geom_sf(data=fishnet_predfire20, aes(fill = Probs), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "",subtitle = "North California 2020") +
+  mapTheme(),
+
+ggplot()+
+  geom_sf(data=fishnet_predfire21, aes(fill = Probs), color = NA) +
+  scale_fill_viridis(option = "B") +
+  labs(title = "",subtitle = "North California 2021") +
+  mapTheme()
+)
+```
+
+```{r fig.height=6, fig.width=8}
+grid.arrange(ncol = 3,
+             
+             
+ggplot()+
+  geom_sf(data=fishnet_predfire19, aes(fill = predOutcome), color = NA) +
+    scale_fill_manual(values = palette3) +
+    geom_sf(data=fire_19, fill="transparent", color = "dark red") +
+  labs(title = "Wildfire Prediction",subtitle = "North California 2019") +
+  mapTheme(),
+
+ggplot()+
+  geom_sf(data=fishnet_predfire20, aes(fill = predOutcome), color = NA) +
+    scale_fill_manual(values = palette3) +
+      geom_sf(data=fire_20, fill="transparent", color = "dark red") +
+  labs(title = "",subtitle = "North California 2020") +
+  mapTheme(),
+
+ggplot()+
+  geom_sf(data=fishnet_predfire21, aes(fill = predOutcome), color = NA) +
+    scale_fill_manual(values = palette3) +
+      geom_sf(data=fire_21, fill="transparent", color = "dark red") +
+  labs(title = "",subtitle = "North California 2021") +
+  mapTheme()
+
+)
+```
+
+
+
+# 8. Discussion
+
+By comparing the models, it shows that feature engineering, spatial and temporal variables help us significantly increase the model accuracy. Deciding the cutting threshold is a key topic in our logistic regression model and that is associated with the use case in our SmartBurn App:
+
+The size of the fishnet grid cells is another key discussion question in this study. We find the 3-mile grid cell size is fair in terms of the common fire perimeters and gives us good amount of "1" in our each year dataset. However, when we separate the data by year, it triples the amount of "0" and that is part of the reason that we get extremely high specificity and low sensibility. It is worth further testing the model in a 5-mile fishnet grid to get more "1-fire" samples and we can also improve the workflow by integrating the ArcGIS part into R.
+
+Another challenge we are having is that our model is not very sensitive in predicting fire in different years. According to the prediction result maps, the three year fire prediction areas look very similar probably because the weather variables are the only temporal variables used in our model. Why 2020 has much more wildfire besides the weather impact? We could add and test more temporal factors to improve it.
+
+
+# 9. Conclusion
+
+Overall, our wildfire prediction model performs well in terms of its accuracy and our goal to minimize the total loss for north California, but as mentioned above, there is still room for the improvement. We hope our SmartBurn App and the prescribed fires could be part of the forest fire management system in California to decrease the risk of wildfire and minimized the loss caused by wildfire.
+

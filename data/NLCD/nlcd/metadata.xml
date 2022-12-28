@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xml:lang="en"><Esri><CreaDate>20221202</CreaDate><CreaTime>00410900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\toolboxes\Spatial Analyst Tools.tbx\ExtractByMask" Date="20221202" Time="004109">ExtractByMask nlcd_2019_land_cover_l48_202 cnty19_1_Merge "C:\Users\Yuehui Gong\Documents\GitHub\Wildfire-Risk\data\NLCD\nlcd"</Process></lineage></DataProperties></Esri></metadata>

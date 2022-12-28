@@ -1,0 +1,134 @@
+
+# Landscape Intactness (1 km), California
+
+
+## URL
+https://databasin.org/datasets/e3ee00e8d94a4de58082fdbc91248a65
+
+
+## Dataset Type
+ArcGIS
+
+
+## Credits
+Conservation Biology Institute
+  
+
+  
+
+Thank you to the state, federal, NGO, and private organizations and programs who provided input data for this analysis:
+  
+
+  
+
+California Energy Commission, FRAP, USDA CDL Cropscape, LANDFIRE, USGS NHD &amp; NLCD, EPA, owlsheadgps.com, TIGER, DRECP, BLM, FCC, CA Office of Mine Reclamation, CA Statewide
+Timber Harvest Plans, LANDFIRE, NatureServe.
+
+
+## Uploaded By
+[Conservation Biology Institute](https://databasin.org/people/consbio)
+
+
+## Description
+This dataset provides an estimate of terrestrial landscape intactness, (i.e. condition), based on the extent to which human impacts such as agriculture, urban development, natural resource extraction, and invasive species have disrupted the landscape across the State of California. Terrestrial intactness values are high in areas where these impacts are low.
+  
+
+  
+
+This dataset, updated December 2016, is the most recent version (v30) created for the California Energy Commission using the open-source logic modeling framework Environmental Evaluation Modeling System (EEMS). Spatially-explicit logic modeling hierarchically integrates numerous and diverse datasets into composite layers, quantifying information in a continuous rather than binary fashion. This technique yields accessible decision-support products that state and federal agencies can use to craft scientifically-rigorous management strategies. The analysis was carried out at 1 sq. km resolution.
+
+  
+
+ Online interactive maps showing the intactness model&#39;s input data, intermediate layers, and final results can be explored via the Conservation Biology Institute&#39;s tools: EEMS Explorer on Data Basin (http://databasin.org/) and EEMS Online (http://eemsonline.org/). Users can explore, modify, and run the landscape intactness and other EEMS models (e.g. change thresholds) on EEMS Online.
+   
+
+  
+
+ The California Statewide Landscape Intactness model integrates data from many different sources: agriculture development (from FRAP Vegetation, and CDL Cropscape), urban development (from LANDFIRE EVT and NLCD Impervious Surfaces), polluted areas (from NHD treatment ponds and EPA Superfund and Brownfield sites), linear development (OHV routes from owlsheadgps.com, roads from TIGER (broken down by type), utility lines, railroads, and pipelines from various state and BLM sources), point development (communication towers from the FCC), energy and mining development (from the state&#39;s Office of Mine Reclamation mine dataset, larger mine footprints, state geothermal wells, USGS wind turbines, solar footprints, renewable projects in development, oil refineries and state oil/gas wells), clear cuts from Statewide Timber Harvest Plans, invasive vegetation (compiled from multiple sources including LANDFIRE EVT, NatureServe Landcover, and NISIMS BLM database), and measures of natural vegetation fragmentation calculated using FRAGSTATS (percent natural core area, number of patches, and nearest neighbor). Results are dependent on the quality of available input data for a given area.
+ 
+  
+
+ Input data range in currency from 2011-2015; the majority of data portray the more recent condition of the landscape. Results apply to terrestrial areas only. (Water bodies are omitted from the final dataset.)
+   
+
+  
+
+  
+
+ Caution is warranted in interpreting this dataset because it provides a single estimate of terrestrial intactness based on available data. It does not directly address ecological value; the &quot;Conservation Values/Attributes&quot; model does. The degree of terrestrial intactness likely varies for a particular species or conservation element, and may depend on additional factors or thresholds not included in this model. This model should be taken as a general measure of intactness that can serve as a template for evaluating across many species at the ecoregion scale, and provides a framework within which species-specific parameters can be incorporated for more detailed analyses.
+
+
+## Use Constraints
+This work is licensed under a  Creative Commons Attribution 3.0 License .
+
+
+### Original Metadata
+metadata/metadata1_original.xml
+
+
+### Data Basin Metadata
+metadata/metadata1.xml
+
+
+### Data Files
+CA_TI_EEMS2_1KM_UpdateFRAGSTATS_v30_H20_Erased.lpk
+
+
+
+### Attribute Data
+
+Agriculture_Density    Agriculture Density    Agriculture Density    
+EPA_Sites_Super_Brown_Density    EPA Sites: Superfund &amp; Brownfield Pt Density    EPA Sites: Superfund &amp; Brownfield Pt Density    
+FCC_Comm_Towers_Density    FCC Communication Towers Density    FCC Communication Towers Density    
+Frag_Nearest_Neighbor_v2_Ave    Fragmentation: Ave Nearest Neighbor    Fragmentation: Ave Nearest Neighbor    
+Frag_Num_Patches_v2_Ave    Fragmentation: Ave Num Patches    Fragmentation: Ave Num Patches    
+Frag_PctNatCore_v2_Ave    Fragmentation: Pct Nat Core Area    Fragmentation: Pct Nat Core Area    
+Geothermal_Wells_Density    Geothermal Wells Density    Geothermal Wells Density    
+High_Percent_Natural_Core_Area_v2_Fz    High Percent Natural Core Area (Fz)    High Percent Natural Core Area (Fz)    
+Invasives_Density    Invasives Density    Invasives Density    
+Low_Energy_Mining_Comm_Pts_Fz    Low Energy, Mining, &amp; Communication Tower Pts (Fz)    Low Energy, Mining, &amp; Communication Tower Pts (Fz)    
+Low_Energy_Mining_Pollution_Fz    Low Energy, Mining, &amp; Pollution (Fz)    Low Energy, Mining, &amp; Pollution (Fz)    
+Low_Mean_Nearest_Neighbor_v2_Fz    Low_Mean_Nearest_Neighbor_v2_Fz    Low Mean Nearest Neighbor (Fz)    
+Low_Mining_Footprint_Coverage_Polygons_Fz    Low Mining Footprint Coverage (Fz)    Low Mining Footprint Coverage (Fz)    
+Low_Natural_Habitat_Fragmentation_v2_WtedUnion_Fz    Low Natural Habitat Fragmentation (Fz)    Low Natural Habitat Fragmentation (Fz)    
+Non_TIGER_Rd_Cls_Linear_Development_Weighted_Fz    Low Non-Rd Linear Development (Fz)    Low Non-Rd Linear Development (Fz)    
+Low_Number_of_Patches_v2_Fz    Low Number of Patches (Fz)    Low Number of Patches (Fz)    
+Low_Permanent_Development_Fz    Low Permanent Development (Fz)    Low Permanent Development (Fz)    
+Low_Polluted_Site_Density    Low Polluted Site Density (Fz)    Low Polluted Site Density (Fz)    
+Low_Total_Wted_Linear_Development    Low Total Wted Linear Development (Fz)    Low Total Wted Linear Development (Fz)    
+Low_Treatment_Pond_Coverage_Polygons_Fz    Low Treatment Pond Coverage (Fz)    Low Treatment Pond Coverage (Fz)    
+Low_Urban_Development_Fz    Low Urban Development (Fz)    Low Urban Development (Fz)    
+Low_Urban_and_Linear_Development_Fz    Low Urban &amp; Linear Development (Fz)    Low Urban &amp; Linear Development (Fz)    
+Low_Vegetation_State_Impacts_without_VegDeparture_Fz    Low Vegetation State Impacts (Fz)    Low Vegetation State Impacts (Fz)    
+Low_Wted_Rd_Cls_Development_Density_Fz    Low Wted Rd Class Development Density (Fz)    Low Wted Rd Class Development Density (Fz)    
+Mine_Footprint_Density    Mine Footprint Density    Mine Footprint Density    
+Mine_Pt_Density    Mine Pt Density    Mine Pt Density    
+Non_TIGER_Rd_Cls_Linear_Development_Weighted_Sum    Non-Rd Linear Development    Non-Rd Linear Development    
+OBJECTID    OBJECTID    Internal feature number.    
+OHV_Ln_Density    OHV Linear Density    OHV Linear Density    
+Oil_and_Gas_Wells_Density    Oil &amp; Gas Well Density    Oil &amp; Gas Well Density    
+Petrol_Refinery_Density    Petroleum Refinery Density    Petroleum Refinery Density    
+Pipelines_Density    Pipeline Density    Pipeline Density    
+Power_Plant_Pt_Density    Power Plant Pt Density    Power Plant Pt Density    
+Railroad_Density    Railroad Density    Railroad Density    
+Rd_Class_Weighted_Sum    Rd_Class_Weighted_Sum    Rd Class Density (Wted Sum)    
+Shape    Shape    Feature geometry.    
+Shape_Area    Shape_Area    Area of feature in internal units squared.    
+Shape_Length    Shape_Length    Length of feature in internal units.    
+Solar_Footprint_Density    Solar Footprint Density    Solar Footprint Density    
+Solar_Footprints_Polygon_Fz    Solar Footprint Density (Fz)    Solar Footprint Density (Fz)    
+Terrestrial_Landscape_Intactness_Updated_Frag_Fz    Terrestrial Landscape Intactness    Terrestrial Landscape Intactness (Fz)    
+TIGER_4WD_Trails_Unpaved_S1500_Density    TIGER 4WD Unpaved Rds (S1500) Density    TIGER 4WD Unpaved Rds (S1500) Density    
+Rds_Hwy_Ramps_S1630_Density    TIGER Highway Ramp (S1630) Density    TIGER Highway Ramp (S1630) Density    
+Rds_Hwy_Primary_S1100_Density    TIGER Interstate (S1100) Density    TIGER Interstate (S1100) Density    
+Rds_Local_S1400_Density    TIGER Local Rd (S1400) Density    TIGER Local Rd (S1400) Density    
+Rds_Service_S1640_S1740_Density    TIGER Service Rd (S1640, S1740) Density    TIGER Service Rd (S1640, S1740) Density    
+Rds_Hwy_Secondary_S1200_Density    TIGER State Highway (S1200) Density    TIGER State Highway (S1200) Density    
+Timber_Clearcuts_Density    Timber Clearcuts Density    Timber Clearcuts Density    
+Trans_110kv_Line_Density    Transmission Line (110-500kv) Density    Transmission Line (110-500kv) Density    
+Treatment_Pond_Density    Treatment Pond Density    Treatment Pond Density    
+Urban_Development_Density    Urban Development Density    Urban Development Density    
+Vegetation_State_Impacts_without_VegDeparture_Weighted_Sum    Vegetation State Impacts (Wted Sum)    Vegetation State Impacts (Wted Sum)    
+Weighted_Sum_of_Energy_Mines_and_Comm_Pts    Weighted Sum of Energy, Mines, &amp; Comm Tower Pts    Weighted Sum of Energy, Mines, &amp; Comm Tower Pts    
+Wind_Turbines_Density    Wind Turbine Density    Wind Turbine Density    
+

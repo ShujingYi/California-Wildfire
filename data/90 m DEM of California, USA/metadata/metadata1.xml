@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <idinfo>
+    <descript>
+      <abstract>SRTM data are organized into individual rasterized cells, or tiles, each covering one degree by one degree in latitude and longitude. Sample spacing for individual data points is either 1 arcsecond, 3 arc-seconds, or 30 arc-seconds, referred to as SRTM1, SRTM3 and SRTM30, respectively. Since one arc-second at the equator corresponds to roughly 30 meters in horizontal extent, the SRTM1 and SRTM3 are sometimes referred to as "30 meter" or "90 meter" data. SRTM data were processed and delivered continent-by-continent and data for each continent are located in a separate directory on this server. The definitions of the continents are displayed in the figure below and at higher resolution in the file Continent_def.gif. Edited SRTM1 data for the United States and its territories and possessions are also being released and can be found in the directory /United_States_1arcsec./ Cells that straddle the border with neighboring countries have been masked with quarter degree quantization such that data outside the U.S. have the void value.</abstract>
+      <purpose />
+      <supplinf />
+    </descript>
+    <useconst>(http://creativecommons.org/licenses/by/3.0)This work is licensed under a Creative Commons Attribution 3.0 License (http://creativecommons.org/licenses/by/3.0).</useconst>
+    <datacred>Kobrick, M., 2006, Photogrammetric Engineering and Remote Sensing, Vol. 72, Number 3, p.206
+ Kobrick, M., 2002, Engineering and Science, v. LXV, Number 1, p. 23-31.
+ Farr, t., Rosen, P., Caro, E., Crippen, R., Duren, R., Hensley, S., Kobrick, M., Paller, M., Rodriguez, E., Roth, L., Seal, D., Shaffer, S., Shimada, J., Umland, J., Werner, M., Oskin, M., Burbank, D., Alsdorf, D., 2008, Rev. Geophys., 45, RG2004.
+ Farr, T.G., M. Kobrick, 2000, Shuttle Radar Topography Mission produces a wealth of data,
+ Amer. Geophys. Union Eos, v. 81, p. 583-585.
+ Rosen, P.A., S. Hensley, I.R. Joughin, F.K. Li, S.N. Madsen, E. Rodriguez, R.M. Goldstein,
+ 2000, Synthetic aperture radar interferometry, Proc. IEEE, v. 88, p. 333-382.
+ DMATR 8350.2, Dept. of Defense World Geodetic System 1984, Its Definition and Relationship with Local Geodetic Systems, Third Edition, 4 July 1997. http://164.214.2.59/GandG/tr8350_2.html
+ Lemoine, F.G. et al, NASA/TP-1998-206861, The Development of the Joint NASA GSFC and NIMA Geopotential Model EGM96, NASA Goddard Space Flight Center, Greenbelt, MD 20771, U.S.A., July 1998.</datacred>
+    <citation>
+      <citeinfo>
+        <title>90 m DEM of California, USA</title>
+        <pubdate />
+        <othercit>Online linkage: http://www.webgis.com/srtm3.html</othercit>
+        <origin>The SRTM data sets result from a collaborative effort by the National Aeronautics and Space Administration (NASA) and the National Geospatial-Intelligence Agency (NGA - previously known as the National Imagery and Mapping Agency</origin>
+        <origin>or NIMA)</origin>
+        <origin>as well as the participation of the German and Italian space agencies</origin>
+        <origin>to generate a near-global digital elevation model (DEM) of the Earth using radar interferometry.</origin>
+        <onlink>http://app.databasin.org/app/pages/datasetPage.jsp?id=78ac54fabd594db5a39f6629514752c0</onlink>
+        <pubinfo>
+          <publish />
+          <pubplace />
+        </pubinfo>
+      </citeinfo>
+    </citation>
+    <ptcontac>
+      <cntinfo>
+        <cntperp>
+          <cntper>Wendy Peterman (wendybrddance@yahoo.com)</cntper>
+          <cntorg />
+        </cntperp>
+      </cntinfo>
+    </ptcontac>
+    <status>
+      <progress />
+      <update />
+    </status>
+    <timeperd>
+      <timeinfo>
+        <sngdate>2000</sngdate>
+        <current />
+      </timeinfo>
+    </timeperd>
+    <keywords>
+      <theme>
+        <themekey>dem</themekey>
+        <themekey>elevation</themekey>
+        <themekey>nasa</themekey>
+        <themekey>nga</themekey>
+        <themekey>nima</themekey>
+        <themekey>remote sensing.</themekey>
+        <themekey>srtm</themekey>
+        <themekey>us geological survey</themekey>
+        <themekey>usgs</themekey>
+        <themekt>Data Basin tags</themekt>
+      </theme>
+    </keywords>
+    <spdom>
+      <bounding>
+        <northbc>42.45182149820537</northbc>
+        <eastbc>-113.61362800000013</eastbc>
+        <southbc>32.023952098193135</southbc>
+        <westbc>-124.99954466666674</westbc>
+      </bounding>
+    </spdom>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr />
+    </attracc>
+    <complete>The DEM is provided as 16-bit signed integer data in a simple binary raster. There are no header or trailer bytes embedded in the file. The data are stored in row major order (all the data for row 1, followed by all the data for row 2, etc.). All elevations are in meters referenced to the WGS84/EGM96 geoid as documented at http://www.NGA.mil/GandG/wgsegm/. Byte order is Motorola ("big-endian") standard with the most significant byte first. Since they are signed integers elevations can range from -32767 to 32767 meters, encompassing the range of elevation to be found on the Earth. These data also contain occassional voids from a number of causes such as shadowing, phase unwrapping anomalies, or other radar-specific causes. Voids are flagged with the value -32768.</complete>
+    <lineage />
+  </dataqual>
+  <eainfo>
+    <detailed>
+      <attr>
+        <attrlabl>Rowid</attrlabl>
+        <attalias>Rowid</attalias>
+        <attrdef>Internal feature number.</attrdef>
+        <attrdomv />
+      </attr>
+      <attr>
+        <attrlabl>VALUE</attrlabl>
+        <attalias>VALUE</attalias>
+        <attrdef>elevation in meters</attrdef>
+        <attrdomv />
+      </attr>
+      <attr>
+        <attrlabl>COUNT</attrlabl>
+        <attalias>COUNT</attalias>
+        <attrdef>number of cells at each elevation</attrdef>
+        <attrdomv />
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>Data Basin</cntorg>
+          <cntper>Data Basin Administrator</cntper>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>physical address</addrtype>
+          <address>136 SW Washington Ave, Suite 202</address>
+          <city>Corvallis</city>
+          <state>OR</state>
+          <postal>97333</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>541-757-0687</cntvoice>
+        <cntemail>databasin_admin@consbio.org</cntemail>
+      </cntinfo>
+    </distrib>
+    <resdesc>90 m DEM of California, USA</resdesc>
+    <distliab>No warranty is made by Data Basin for use of this dataset.  No warranty is made by Data Basin regarding the accuracy, reliability, or completeness of this dataset. In no event shall Data Basin have any liability whatsoever for payment of any consequential, incidental, indirect, special, or tort damages of any kind, including, but not limited to, any loss of profits arising out of the use or reliance on the geographic or attribute data contained within this dataset or arising out of the delivery, installation, operation, or support by Data Basin.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>Raster Layer</formname>
+          <formvern>ArcGIS  10</formvern>
+          <formspec>Raster Layer</formspec>
+          <filedec>No compression applied</filedec>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>http://app.databasin.org/app/pages/datasetPage.jsp?id=78ac54fabd594db5a39f6629514752c0</networkr>
+              </networka>
+            </computer>
+            <accinstr>Download from http://databasin.org</accinstr>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+      <ordering>Download from http://databasin.org</ordering>
+    </stdorder>
+    <techpreq>ESRI ArcGIS Desktop and supporting operating systems.</techpreq>
+  </distinfo>
+</metadata>
+

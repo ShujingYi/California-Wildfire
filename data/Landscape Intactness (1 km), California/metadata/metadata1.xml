@@ -1,0 +1,402 @@
+<?xml version="1.0" ?>
+<metadata>
+	<dataqual>
+		<lineage>
+			<procstep>
+				<procdesc>Consolidated Data Basin Info: Please see attached PDF document &quot;CA_Terrestrial_Intactness_EEMS_methodologies_v30&quot; for modeling methodology.</procdesc>
+			</procstep>
+		</lineage>
+	</dataqual>
+	<eainfo>
+		<detailed>
+			<attr>
+				<attrlabl>Agriculture_Density</attrlabl>
+				<attalias>Agriculture Density</attalias>
+				<attrdef>Agriculture Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>EPA_Sites_Super_Brown_Density</attrlabl>
+				<attalias>EPA Sites: Superfund &amp; Brownfield Pt Density</attalias>
+				<attrdef>EPA Sites: Superfund &amp; Brownfield Pt Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>FCC_Comm_Towers_Density</attrlabl>
+				<attalias>FCC Communication Towers Density</attalias>
+				<attrdef>FCC Communication Towers Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Frag_Nearest_Neighbor_v2_Ave</attrlabl>
+				<attalias>Fragmentation: Ave Nearest Neighbor</attalias>
+				<attrdef>Fragmentation: Ave Nearest Neighbor</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Frag_Num_Patches_v2_Ave</attrlabl>
+				<attalias>Fragmentation: Ave Num Patches</attalias>
+				<attrdef>Fragmentation: Ave Num Patches</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Frag_PctNatCore_v2_Ave</attrlabl>
+				<attalias>Fragmentation: Pct Nat Core Area</attalias>
+				<attrdef>Fragmentation: Pct Nat Core Area</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Geothermal_Wells_Density</attrlabl>
+				<attalias>Geothermal Wells Density</attalias>
+				<attrdef>Geothermal Wells Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>High_Percent_Natural_Core_Area_v2_Fz</attrlabl>
+				<attalias>High Percent Natural Core Area (Fz)</attalias>
+				<attrdef>High Percent Natural Core Area (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Invasives_Density</attrlabl>
+				<attalias>Invasives Density</attalias>
+				<attrdef>Invasives Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Energy_Mining_Comm_Pts_Fz</attrlabl>
+				<attalias>Low Energy, Mining, &amp; Communication Tower Pts (Fz)</attalias>
+				<attrdef>Low Energy, Mining, &amp; Communication Tower Pts (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Energy_Mining_Pollution_Fz</attrlabl>
+				<attalias>Low Energy, Mining, &amp; Pollution (Fz)</attalias>
+				<attrdef>Low Energy, Mining, &amp; Pollution (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Mining_Footprint_Coverage_Polygons_Fz</attrlabl>
+				<attalias>Low Mining Footprint Coverage (Fz)</attalias>
+				<attrdef>Low Mining Footprint Coverage (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Natural_Habitat_Fragmentation_v2_WtedUnion_Fz</attrlabl>
+				<attalias>Low Natural Habitat Fragmentation (Fz)</attalias>
+				<attrdef>Low Natural Habitat Fragmentation (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Non_TIGER_Rd_Cls_Linear_Development_Weighted_Fz</attrlabl>
+				<attalias>Low Non-Rd Linear Development (Fz)</attalias>
+				<attrdef>Low Non-Rd Linear Development (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Number_of_Patches_v2_Fz</attrlabl>
+				<attalias>Low Number of Patches (Fz)</attalias>
+				<attrdef>Low Number of Patches (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Permanent_Development_Fz</attrlabl>
+				<attalias>Low Permanent Development (Fz)</attalias>
+				<attrdef>Low Permanent Development (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Polluted_Site_Density</attrlabl>
+				<attalias>Low Polluted Site Density (Fz)</attalias>
+				<attrdef>Low Polluted Site Density (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Total_Wted_Linear_Development</attrlabl>
+				<attalias>Low Total Wted Linear Development (Fz)</attalias>
+				<attrdef>Low Total Wted Linear Development (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Treatment_Pond_Coverage_Polygons_Fz</attrlabl>
+				<attalias>Low Treatment Pond Coverage (Fz)</attalias>
+				<attrdef>Low Treatment Pond Coverage (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Urban_and_Linear_Development_Fz</attrlabl>
+				<attalias>Low Urban &amp; Linear Development (Fz)</attalias>
+				<attrdef>Low Urban &amp; Linear Development (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Urban_Development_Fz</attrlabl>
+				<attalias>Low Urban Development (Fz)</attalias>
+				<attrdef>Low Urban Development (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Vegetation_State_Impacts_without_VegDeparture_Fz</attrlabl>
+				<attalias>Low Vegetation State Impacts (Fz)</attalias>
+				<attrdef>Low Vegetation State Impacts (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Wted_Rd_Cls_Development_Density_Fz</attrlabl>
+				<attalias>Low Wted Rd Class Development Density (Fz)</attalias>
+				<attrdef>Low Wted Rd Class Development Density (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Low_Mean_Nearest_Neighbor_v2_Fz</attrlabl>
+				<attalias>Low_Mean_Nearest_Neighbor_v2_Fz</attalias>
+				<attrdef>Low Mean Nearest Neighbor (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Mine_Footprint_Density</attrlabl>
+				<attalias>Mine Footprint Density</attalias>
+				<attrdef>Mine Footprint Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Mine_Pt_Density</attrlabl>
+				<attalias>Mine Pt Density</attalias>
+				<attrdef>Mine Pt Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Non_TIGER_Rd_Cls_Linear_Development_Weighted_Sum</attrlabl>
+				<attalias>Non-Rd Linear Development</attalias>
+				<attrdef>Non-Rd Linear Development</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>OBJECTID</attrlabl>
+				<attalias>OBJECTID</attalias>
+				<attrdef>Internal feature number.</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>OHV_Ln_Density</attrlabl>
+				<attalias>OHV Linear Density</attalias>
+				<attrdef>OHV Linear Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Oil_and_Gas_Wells_Density</attrlabl>
+				<attalias>Oil &amp; Gas Well Density</attalias>
+				<attrdef>Oil &amp; Gas Well Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Petrol_Refinery_Density</attrlabl>
+				<attalias>Petroleum Refinery Density</attalias>
+				<attrdef>Petroleum Refinery Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Pipelines_Density</attrlabl>
+				<attalias>Pipeline Density</attalias>
+				<attrdef>Pipeline Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Power_Plant_Pt_Density</attrlabl>
+				<attalias>Power Plant Pt Density</attalias>
+				<attrdef>Power Plant Pt Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Railroad_Density</attrlabl>
+				<attalias>Railroad Density</attalias>
+				<attrdef>Railroad Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Rd_Class_Weighted_Sum</attrlabl>
+				<attalias>Rd_Class_Weighted_Sum</attalias>
+				<attrdef>Rd Class Density (Wted Sum)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Shape</attrlabl>
+				<attalias>Shape</attalias>
+				<attrdef>Feature geometry.</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Shape_Area</attrlabl>
+				<attalias>Shape_Area</attalias>
+				<attrdef>Area of feature in internal units squared.</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Shape_Length</attrlabl>
+				<attalias>Shape_Length</attalias>
+				<attrdef>Length of feature in internal units.</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Solar_Footprint_Density</attrlabl>
+				<attalias>Solar Footprint Density</attalias>
+				<attrdef>Solar Footprint Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Solar_Footprints_Polygon_Fz</attrlabl>
+				<attalias>Solar Footprint Density (Fz)</attalias>
+				<attrdef>Solar Footprint Density (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>TIGER_4WD_Trails_Unpaved_S1500_Density</attrlabl>
+				<attalias>TIGER 4WD Unpaved Rds (S1500) Density</attalias>
+				<attrdef>TIGER 4WD Unpaved Rds (S1500) Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Rds_Hwy_Ramps_S1630_Density</attrlabl>
+				<attalias>TIGER Highway Ramp (S1630) Density</attalias>
+				<attrdef>TIGER Highway Ramp (S1630) Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Rds_Hwy_Primary_S1100_Density</attrlabl>
+				<attalias>TIGER Interstate (S1100) Density</attalias>
+				<attrdef>TIGER Interstate (S1100) Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Rds_Local_S1400_Density</attrlabl>
+				<attalias>TIGER Local Rd (S1400) Density</attalias>
+				<attrdef>TIGER Local Rd (S1400) Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Rds_Service_S1640_S1740_Density</attrlabl>
+				<attalias>TIGER Service Rd (S1640, S1740) Density</attalias>
+				<attrdef>TIGER Service Rd (S1640, S1740) Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Rds_Hwy_Secondary_S1200_Density</attrlabl>
+				<attalias>TIGER State Highway (S1200) Density</attalias>
+				<attrdef>TIGER State Highway (S1200) Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Terrestrial_Landscape_Intactness_Updated_Frag_Fz</attrlabl>
+				<attalias>Terrestrial Landscape Intactness</attalias>
+				<attrdef>Terrestrial Landscape Intactness (Fz)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Timber_Clearcuts_Density</attrlabl>
+				<attalias>Timber Clearcuts Density</attalias>
+				<attrdef>Timber Clearcuts Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Trans_110kv_Line_Density</attrlabl>
+				<attalias>Transmission Line (110-500kv) Density</attalias>
+				<attrdef>Transmission Line (110-500kv) Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Treatment_Pond_Density</attrlabl>
+				<attalias>Treatment Pond Density</attalias>
+				<attrdef>Treatment Pond Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Urban_Development_Density</attrlabl>
+				<attalias>Urban Development Density</attalias>
+				<attrdef>Urban Development Density</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Vegetation_State_Impacts_without_VegDeparture_Weighted_Sum</attrlabl>
+				<attalias>Vegetation State Impacts (Wted Sum)</attalias>
+				<attrdef>Vegetation State Impacts (Wted Sum)</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Weighted_Sum_of_Energy_Mines_and_Comm_Pts</attrlabl>
+				<attalias>Weighted Sum of Energy, Mines, &amp; Comm Tower Pts</attalias>
+				<attrdef>Weighted Sum of Energy, Mines, &amp; Comm Tower Pts</attrdef>
+			</attr>
+			<attr>
+				<attrlabl>Wind_Turbines_Density</attrlabl>
+				<attalias>Wind Turbine Density</attalias>
+				<attrdef>Wind Turbine Density</attrdef>
+			</attr>
+		</detailed>
+	</eainfo>
+	<idinfo>
+		<timeperd>
+			<timeinfo>
+				<sngdate>
+					<caldate>Input data currency range: 2011-2015</caldate>
+				</sngdate>
+			</timeinfo>
+		</timeperd>
+		<useconst>This work is licensed under a  Creative Commons Attribution 3.0 License.</useconst>
+		<descript>
+			<abstract>This dataset provides an estimate of terrestrial landscape intactness, (i.e. condition), based on the extent to which human impacts such as agriculture, urban development, natural resource extraction, and invasive species have disrupted the landscape across the State of California. Terrestrial intactness values are high in areas where these impacts are low.   This dataset, updated December 2016, is the most recent version (v30) created for the California Energy Commission using the open-source logic modeling framework Environmental Evaluation Modeling System (EEMS). Spatially-explicit logic modeling hierarchically integrates numerous and diverse datasets into composite layers, quantifying information in a continuous rather than binary fashion. This technique yields accessible decision-support products that state and federal agencies can use to craft scientifically-rigorous management strategies. The analysis was carried out at 1 sq. km resolution.Online interactive maps showing the intactness model’s input data, intermediate layers, and final results can be explored via the Conservation Biology Institute’s tools: EEMS Explorer on Data Basin (http://databasin.org/) and EEMS Online (http://eemsonline.org/). Users can explore, modify, and run the landscape intactness and other EEMS models (e.g. change thresholds) on EEMS Online.The California Statewide Landscape Intactness model integrates data from many different sources: agriculture development (from FRAP Vegetation, and CDL Cropscape), urban development (from LANDFIRE EVT and NLCD Impervious Surfaces), polluted areas (from NHD treatment ponds and EPA Superfund and Brownfield sites), linear development (OHV routes from owlsheadgps.com, roads from TIGER (broken down by type), utility lines, railroads, and pipelines from various state and BLM sources), point development (communication towers from the FCC), energy and mining development (from the state’s Office of Mine Reclamation mine dataset, larger mine footprints, state geothermal wells, USGS wind turbines, solar footprints, renewable projects in development, oil refineries and state oil/gas wells), clear cuts from Statewide Timber Harvest Plans, invasive vegetation (compiled from multiple sources including LANDFIRE EVT, NatureServe Landcover, and NISIMS BLM database), and measures of natural vegetation fragmentation calculated using FRAGSTATS (percent natural core area, number of patches, and nearest neighbor). Results are dependent on the quality of available input data for a given area.  Input data range in currency from 2011-2015; the majority of data portray the more recent condition of the landscape. Results apply to terrestrial areas only. (Water bodies are omitted from the final dataset.)Caution is warranted in interpreting this dataset because it provides a single estimate of terrestrial intactness based on available data. It does not directly address ecological value; the “Conservation Values/Attributes” model does. The degree of terrestrial intactness likely varies for a particular species or conservation element, and may depend on additional factors or thresholds not included in this model. This model should be taken as a general measure of intactness that can serve as a template for evaluating across many species at the ecoregion scale, and provides a framework within which species-specific parameters can be incorporated for more detailed analyses.</abstract>
+			<purpose>This
+dataset was created to be used for planning purposes by the State of California.
+It shows the extent and magnitude of human impacts, (such as agriculture, urban
+development, natural resource extraction, and invasive species), on the
+landscape. 
+
+Online
+interactive maps showing input data, intermediate layers, and final results can
+be explored via the Conservation Biology Institute’s tools: EEMS Explorer on Data Basin (http://databasin.org/)
+and EEMS Online (http://eemsonline.org/). Users can
+explore, modify, and run the landscape intactness and other EEMS models (e.g.
+change thresholds) on EEMS Online.</purpose>
+		</descript>
+		<ptcontac>
+			<cntinfo>
+				<cntemail>r.degagne@gmail.com</cntemail>
+				<cntpos>GIS Analyst, Cartographer, Conservation Biologist, Lecturer</cntpos>
+				<cntperp>
+					<cntper>Rebecca Degagne</cntper>
+					<cntorg>Conservation Biology Institute</cntorg>
+				</cntperp>
+			</cntinfo>
+		</ptcontac>
+		<keywords>
+			<theme>
+				<themekey>anthropogenic influence,ca,logic model,intactness,california,environmental evaluation modeling system,landscape condition,eems</themekey>
+			</theme>
+		</keywords>
+		<citation>
+			<citeinfo>
+				<onlink>https://databasin.org/datasets/e3ee00e8d94a4de58082fdbc91248a65</onlink>
+				<title>Landscape Intactness (1 km), California</title>
+				<origin>Conservation Biology InstituteThank you to the state</origin>
+				<origin>federal</origin>
+				<origin>NGO</origin>
+				<origin>and private organizations and programs who provided input data for this analysis:California Energy Commission</origin>
+				<origin>FRAP</origin>
+				<origin>USDA CDL Cropscape</origin>
+				<origin>LANDFIRE</origin>
+				<origin>USGS NHD &amp;amp; NLCD</origin>
+				<origin>EPA</origin>
+				<origin>owlsheadgps.com</origin>
+				<origin>TIGER</origin>
+				<origin>DRECP</origin>
+				<origin>BLM</origin>
+				<origin>FCC</origin>
+				<origin>CA Office of Mine Reclamation</origin>
+				<origin>CA Statewide 
+Timber Harvest Plans</origin>
+				<origin>LANDFIRE</origin>
+				<origin>NatureServe.</origin>
+				<othercit>Degagne, R., J. Brice, M. Gough, T. Sheehan, and J. Strittholt. Terrestrial Landscape Intactness 1 km, California. Conservation Biology Institute, December 2016. From DataBasin.org: https://databasin.org/datasets/e3ee00e8d94a4de58082fdbc91248a65</othercit>
+			</citeinfo>
+		</citation>
+		<spdom>
+			<bounding>
+				<southbc>3819096.5849</southbc>
+				<northbc>5171245.4545</northbc>
+				<eastbc>-12635230.7039</eastbc>
+				<westbc>-13860575.8999</westbc>
+			</bounding>
+		</spdom>
+	</idinfo>
+	<distinfo>
+		<distliab>No warranty is made by Data Basin for use of this dataset.  No warranty is made by Data Basin regarding the accuracy, reliability, or completeness of this dataset. In no event shall Data Basin have any liability whatsoever for payment of any consequential, incidental, indirect, special, or tort damages of any kind, including, but not limited to, any loss of profits arising out of the use or reliance on the geographic or attribute data contained within this dataset or arising out of the delivery, installation, operation, or support by Data Basin.</distliab>
+		<techpreq>Desktop GIS software.</techpreq>
+		<stdorder>
+			<digform>
+				<digtopt>
+					<onlinopt>
+						<accinstr>Download from https://databasin.org</accinstr>
+						<computer>
+							<networka>
+								<networkr>https://databasin.org/datasets/e3ee00e8d94a4de58082fdbc91248a65</networkr>
+							</networka>
+						</computer>
+					</onlinopt>
+				</digtopt>
+				<digtinfo>
+					<filedec>No compression applied</filedec>
+					<formvern>ArcGIS 10</formvern>
+					<formspec>Feature Layer</formspec>
+					<formname>Feature Layer</formname>
+				</digtinfo>
+			</digform>
+			<ordering>Download from https://databasin.org</ordering>
+			<fees>None</fees>
+		</stdorder>
+		<distrib>
+			<cntinfo>
+				<cntvoice>541-757-0687</cntvoice>
+				<cntemail>databasin_admin@consbio.org</cntemail>
+				<cntperp>
+					<cntorg>Data Basin</cntorg>
+					<cntper>Data Basin Administrator</cntper>
+				</cntperp>
+				<cntaddr>
+					<country>USA</country>
+					<city>Corvallis</city>
+					<postal>97333</postal>
+					<address>136 SW Washington Ave, Suite 202</address>
+					<addrtype>physical address</addrtype>
+					<state>OR</state>
+				</cntaddr>
+			</cntinfo>
+		</distrib>
+	</distinfo>
+</metadata>
